@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h1>Assign a Task</h1>
+
+        <!-- Task Form -->
+        <form method="POST" action="{{ url_for('task.assign_task') }}">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label for="title">Task Title</label>
+                <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    class="form-control"
+                    placeholder="Enter task title"
+                    value="{{ form.title.data or '' }}"
+                    required
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="description">Task Description</label>
+                <textarea
+                    name="description"
+                    id="description"
+                    class="form-control"
+                    rows="4"
+                    placeholder="Enter task description"
+                    required
+                >{{ form.description.data or '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="assignee">Assign To</label>
+                <select name="assignee" id="assignee" class="form-control" required>
+                    <option value="" disabled selected>Select a user</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}" {% if form.assignee.data == user.id %}selected{% endif %}>
+                            {{ user.first_name }} {{ user.last_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select name="status" id="status" class="form-control" required>
+                    <option value="Pending" {% if form.status.data == "Pending" %}selected{% endif %}>Pending</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority</label>
+                <select name="priority" id="priority" class="form-control" required>
+                    <option value="Low" {% if form.priority.data == "Low" %}selected{% endif %}>Low</option>
+                    <option value="Medium" {% if form.priority.data == "Medium" %}selected{% endif %}>Medium</option>
+                    <option value="High" {% if form.priority.data == "High" %}selected{% endif %}>High</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="due_date">Due Date</label>
+                <input
+                    type="date"
+                    name="due_date"
+                    id="due_date"
+                    class="form-control"
+                    value="{{ form.due_date.data or '' }}"
+                    required
+                />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create Task</button>
+        </form>
+
+        <div class="cta">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">Back to Task List</a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task List - Task Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="welcome-message">
+            {% if current_user.is_authenticated %}
+                Welcome to "{{ current_user.first_name }} {{ current_user.last_name }}" Task Management System
+            {% else %}
+                Welcome to the Task Management System
+            {% endif %}
+        </div>
+        <div class="auth-buttons">
+            {% if current_user.is_authenticated %}
+                <button onclick="window.location.href='{{ url_for('user.user_list') }}'" class="btn btn-secondary btn-sm">Users List</button>
+                <button onclick="window.location.href='{{ url_for('task.assign_task') }}'" class="btn btn-primary btn-sm">Assign Task</button>
+                <button onclick="window.location.href='{{ url_for('auth.logout') }}'" class="btn btn-danger btn-sm">Logout</button>
+            {% else %}
+                <button onclick="window.location.href='{{ url_for('auth.signup') }}'" class="btn btn-success btn-sm">Signup</button>
+                <button onclick="window.location.href='{{ url_for('auth.login') }}'" class="btn btn-primary btn-sm">Login</button>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="container my-5">
+        <h1 class="text-center mb-4">Task List</h1>
+
+        <!-- Search Form -->
+        <div class="mb-4">
+            <form method="GET" action="{{ url_for('dashboard.dashboard') }}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="assignee">Assignee</label>
+                        <select name="assignee" class="form-control">
+                            <option value="">All</option>
+                            {% for user in users %}
+                                <option value="{{ user.id }}" {% if user.id|string == assignee %}selected{% endif %}>
+                                    {{ user.first_name }} {{ user.last_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status">Status</label>
+                        <select name="status" class="form-control">
+                            <option value="">All</option>
+                            <option value="Pending" {% if status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option value="Completed" {% if status == 'Completed' %}selected{% endif %}>Completed</option>
+                            <option value="InProcessing" {% if status == 'InProcessing' %}selected{% endif %}>In Processing</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="due_date">Due Date</label>
+                        <input type="date" name="due_date" class="form-control" value="{{ due_date }}">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary mt-4">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Display Task List -->
+        {% if tasks %}
+        <div class="table-responsive">
+            <table class="table table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Assignee</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Due Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.assignee.first_name }} {{ task.assignee.last_name }}</td>
+                        <td>{{ task.status }}</td>
+                        <td>{{ task.priority }}</td>
+                        <td>{{ task.due_date.strftime('%Y-%m-%d') }}</td>
+
+                        <td>
+                            <a href="{{ url_for('dashboard.task_detail', task_id=task.id) }}" class="btn btn-warning btn-sm">View</a>
+                        
+                            {% if task.creator_id == current_user.id %}
+                                <a href="{{ url_for('task.task_update', task_id=task.id) }}" class="btn btn-info btn-sm">Update Task</a>
+                                <form method="POST" action="{{ url_for('task.task_delete', task_id=task.id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm" style="width: 30%;">Delete Task</button>
+                                </form>
+                            {% endif %}
+                        
+                            {% if task.assignee_id == current_user.id %}
+                                <a href="{{ url_for('task.update_task_status', task_id=task.id) }}" class="btn btn-success btn-sm">Update Status</a>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center">No tasks available.</p>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
