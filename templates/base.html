@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Task Management System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="welcome-message">
+            {% if current_user.is_authenticated %}
+                Welcome to "{{ current_user.first_name }} {{ current_user.last_name }}" Task Management System
+            {% else %}
+                Welcome to the Task Management System
+            {% endif %}
+        </div>
+        <div class="auth-buttons">
+            {% if current_user.is_authenticated %}
+                <button onclick="window.location.href='{{ url_for('dashboard.dashboard') }}'">Dashboard</button>
+                <button onclick="window.location.href='{{ url_for('auth.logout') }}'">Logout</button>
+            {% else %}
+                <button onclick="window.location.href='{{ url_for('auth.signup') }}'">Signup</button>
+                <button onclick="window.location.href='{{ url_for('auth.login') }}'">Login</button>
+            {% endif %}
+        </div>
+    </header>
+    
+    <!-- Main content section -->
+    <div class="container">{% block content %} {% endblock %}</div>
+</body>
+</html>
